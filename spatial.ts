@@ -31,6 +31,7 @@ function cleanup() {
 // hover custom event
 var hoverEvent = new CustomEvent("hover");
 var hoverLeaveEvent = new CustomEvent("hover-leave");
+var nextFocus
 
 window.addEventListener("hashchange", cleanup);
 
@@ -63,27 +64,61 @@ var Spatial = {
 
 			childrensArray.forEach((childElement, childIndex) => {
 				childElement.setAttribute("tabindex", "-1");
-                childElement.classList.add("focus-item");
+				childElement.classList.add("focus-item");
 
-                // attach event listener to item
-                childElement.addEventListener(
-                    "keydown",
-                    Spatial.navigate,
-                    true
-                )
+				// attach event listener to item
+				childElement.addEventListener(
+					"keydown",
+					Spatial.navigate,
+					true
+				);
 			});
 		});
-        
-        // Mouse navigation
-        if(inputOption.mouseEnabled) {
-            document.addEventListener("keydown", Spatial.mouseDisabled, true);
-            document.addEventListener("wheel", Spatial.mouseEnabled, true);
-        }
-	},
-    mouseDisabled: (event) => {},
-    mouseEnabled: (event) => {},
-    navigate: (event) => {
 
-    }
+		// Mouse navigation
+		if (inputOption.mouseEnabled) {
+			document.addEventListener("keydown", Spatial.mouseDisabled, true);
+			document.addEventListener("wheel", Spatial.mouseEnabled, true);
+		}
+	},
+	mouseDisabled: (event) => {},
+	mouseEnabled: (event) => {},
+	navigate: (event) => {
+		// define acceptable input
+		if (
+			[
+				"Space",
+				"ArrowUp",
+				"ArrowDown",
+				"ArrowRight",
+				"ArrowLeft",
+			].indexOf(event.code) > -1
+		) {
+			event.preventDefault();
+		}
+
+		// action and variable
+		let nextElement, closestSection, nextParentElement, nextParentElementId;
+		switch (event) {
+			case event.keyCode === 37:
+			case event.code === "ArrowLeft":
+                if(event.target.hasAttribute("focus-left")) {
+                    nextFocus = new CustomEvent("next-focus", {
+                        detail: { direction: "left"},
+                    })
+                }
+				break;
+			case event.keyCode === 39:
+			case event.code === "ArrowRight":
+                break;
+			case event.keyCode === 38:
+			case event.code === "ArrowUp":
+                break;
+			case event.keyCode === 40:
+			case event.code === "ArrowDown":
+                break;
+			default:
+		}
+	},
 };
 console.log("spatial script added");
