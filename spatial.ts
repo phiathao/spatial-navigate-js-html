@@ -1,3 +1,9 @@
+
+type spatialOption = {
+    focusOption: "firstElement" | "lastElement"
+    mouseEnabled: boolean
+}
+
 // if no option is set, option will be set to default
 var defaultOption = {
     focusOption: "firstElement",
@@ -32,6 +38,14 @@ window.addEventListener("hashchange", cleanup);
 var Spatial = {
 
     // start spatial navigation
-    init: (options: typeof defaultOption | undefined){
+    init: (inputOption: spatialOption | undefined) => {
+        if ( inputOption && typeof inputOption === "object" ){
+            //define spatial option
+            Object.keys(inputOption).map((k, i) => {
+                if (_option[k]) {
+                    _option[k] = inputOption[k];
+                }
+            });
+        }
     }
 }
