@@ -31,7 +31,7 @@ function cleanup() {
 // hover custom event
 var hoverEvent = new CustomEvent("hover");
 var hoverLeaveEvent = new CustomEvent("hover-leave");
-var nextFocus
+var nextFocus;
 
 window.addEventListener("hashchange", cleanup);
 
@@ -100,23 +100,138 @@ var Spatial = {
 		// action and variable
 		let nextElement, closestSection, nextParentElement, nextParentElementId;
 		switch (event) {
+			// Left button keyCode and Code
 			case event.keyCode === 37:
 			case event.code === "ArrowLeft":
-                if(event.target.hasAttribute("focus-left")) {
-                    nextFocus = new CustomEvent("next-focus", {
-                        detail: { direction: "left"},
-                    })
-                }
+				// Have a target selectable item
+				if (event.target.hasAttribute("focus-left")) {
+					let targetElement = event.target.getAttribute("focus-left");
+					nextElement = document.querySelector(
+						`[focus-name="${targetElement}"]`
+					);
+					if (nextElement.hasAttribute("focusable-section")) {
+						nextElement.children[0].focus();
+					} else {
+						nextElement.focus();
+					}
+				} else {
+					// No Target selectable item
+					closestSection = event.target.cloest(
+						'[focusable-section="true"]'
+					);
+					// If sibling exist it will be target for next focus
+					nextElement = event.target.previousSibling;
+
+					// Remember location for section
+					if (
+						_option.focusOption === "lastElement" &&
+						closestSection &&
+						nextElement
+					) {
+						_lastElement[
+							parseInt(
+								closestSection.getAttribute("section-number")
+							)
+						] = nextElement;
+					}
+					if (nextElement) {
+						nextElement.focus();
+					}
+				}
 				break;
+			// Right button keyCode and Code
 			case event.keyCode === 39:
 			case event.code === "ArrowRight":
-                break;
+				if (event.target.hasAttribute("focus-right")) {
+					let targetElement =
+						event.target.getAttribute("focus-right");
+					nextElement = document.querySelector(
+						`[focus-name="${targetElement}"]`
+					);
+					if (nextElement.hasAttribute("focusable-section")) {
+						nextElement.children[0].focus();
+					} else {
+						nextElement.focus();
+					}
+				} else {
+					closestSection = event.target.cloest(
+						'[focusable-section="true"]'
+					);
+					nextElement = event.target.nextSibling;
+					if (
+						_option.focusOption === "lastElement" &&
+						closestSection &&
+						nextElement
+					) {
+						_lastElement[
+							parseInt(
+								closestSection.getAttribute("section-number")
+							)
+						] = nextElement;
+					}
+					if (nextElement) {
+						nextElement.focus();
+					}
+				}
+				break;
+			// Arrow Up and Down is use to navigate between different section such as the different row
+			// in some case it can go to the header or footer
 			case event.keyCode === 38:
 			case event.code === "ArrowUp":
-                break;
+				if (event.target.hasAttribute("focus-up")) {
+					let targetElement = event.target.getAttribute("focus-up");
+					nextElement = document.querySelector(
+						`[focus-name="${targetElement}"]`
+					);
+					if (nextElement.hasAttribute("focusable-section")) {
+						nextElement.children[0].focus();
+					} else {
+						nextElement.focus();
+					}
+				} else {
+					// get section
+					closestSection = event.target.cloest(
+						'[focusable-section="true"]'
+					);
+					let closestSectionNumber = parseInt(
+						closestSection.getAttribute("section-number")
+					);
+
+					// store current element to variable
+					if (closestSectionNumber) {
+						_lastElement[closestSectionNumber] = event.target;
+					}
+					// Get next section element
+                    // If next parent element have a store element and option is to remember it
+                    // focus the remembered element or else focus first child of it if it doesn't
+                    // If no option just go to first child of next section
+					nextParentElement = document.querySelector(
+						`[section-number="${closestSectionNumber - 1}]`
+					);
+					if (
+						nextParentElement &&
+						nextParentElement.hasAttribute("focusable-section")
+					) {
+						if (_option.focusOption === "lastElement") {
+							// Find out if previous section save an element to focus on
+							nextParentElementId =
+								nextParentElement.getAttribute(
+									"section-number"
+								);
+							if (_lastElement[nextParentElementId]) {
+								_lastElement[nextParentElementId].focus();
+							} else {
+								nextParentElement.children[0].focus();
+							}
+						} else {
+							nextParentElement.children[0].focus();
+						}
+					}
+				}
+				break;
 			case event.keyCode === 40:
 			case event.code === "ArrowDown":
-                break;
+				break;
 			default:
 		}
 	},
